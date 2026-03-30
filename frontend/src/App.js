@@ -4,7 +4,8 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
+  const [editingId, setEditingId] = useState(null);
+  
   // ✅ FETCH NOTES
   const fetchNotes = () => {
     fetch("http://localhost:5000/api/notes")
@@ -40,8 +41,27 @@ function App() {
 
     fetchNotes();
   };
+  //EDIT NOTE
+  const editNote = (note) => {
+  setTitle(note.title);
+  setContent(note.content);
+  setEditingId(note._id);
+};
+  // ✅ UPDATE NOTE
+  const updateNote = async () => {
+  await fetch(`http://localhost:5000/api/notes/${editingId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ title, content })
+  });
 
-  
+  setTitle("");
+  setContent("");
+  setEditingId(null);
+  fetchNotes();
+};
     
   return (
     <div style={{ 
@@ -53,13 +73,16 @@ function App() {
 
       
 <h1 style={{ 
-  textAlign: "center", 
+  textAlign: "center",
   marginBottom: "30px",
-  color: "white",fontSize: "40px",
-letterSpacing: "1px"
+  color: "#f8f9ff",
+  fontSize: "48px",          // 👈 increased size
+  fontWeight: "700",         // 👈 bold
+  textShadow: "0px 4px 12px rgba(0,0,0,0.3)"
 }}>
   My Notes 📝
 </h1>
+
     <div style={{ textAlign: "center", marginBottom: "20px" }}>
       <input
   placeholder="Title"
@@ -81,21 +104,25 @@ letterSpacing: "1px"
   style={{
     padding: "10px",
     marginRight: "10px",
+    marginBottom: "15px",
     borderRadius: "8px",
     border: "none",
     outline: "none"
   }}
 />
-      <button onClick={addNote} style={{
-  padding: "10px 20px",
-  background: "#00c6ff",
-  color: "white",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer"
-}}>
-        Add
-      </button>
+      <button
+  onClick={editingId ? updateNote : addNote}
+  style={{
+    padding: "10px 20px",
+    background: "#00c6ff",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
+  }}
+>
+  {editingId ? "Update Note" : "Add Note"}
+</button>
     </div>
 
     <div style={{ display: "flex",
@@ -106,8 +133,37 @@ justifyContent: "center" }}>
         <div key={note._id} className="note-card">
 
         
-          <h3>{note.title}</h3>
-          <p>{note.content}</p>
+         <h3 style={{ 
+  color: "#ffffff",          // bright white
+  fontSize: "22px",
+  fontWeight: "600",
+  marginBottom: "8px"
+}}>
+  {note.title}
+</h3>
+
+<p style={{ 
+  color: "#d1d5db",          // soft grey (perfect contrast)
+  fontSize: "17px",
+  lineHeight: "1.5"
+}}>
+  {note.content}
+</p>
+          
+          <button
+            onClick={() => editNote(note)}
+            style={{
+              background: "#00c6ff",
+              color: "white",
+              border: "none",
+              padding: "8px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              marginRight: "8px"
+            }}
+          >
+            Edit
+          </button>
           <button
             onClick={() => deleteNote(note._id)}
            style={{

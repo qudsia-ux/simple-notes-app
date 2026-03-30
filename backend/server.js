@@ -60,3 +60,19 @@ app.delete("/api/notes/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.put("/api/notes/:id", async (req, res) => {
+  try {
+    const { title, content } = req.body;
+
+    const updatedNote = await Note.findByIdAndUpdate(
+      req.params.id,
+      { title, content },
+      { new: true }
+    );
+
+    res.json(updatedNote);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
